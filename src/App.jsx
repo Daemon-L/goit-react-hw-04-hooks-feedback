@@ -1,59 +1,60 @@
-import React, { Component } from 'react';
+import { useState } from "react";
 import Section from './components/Section/Section';
 import FeedbackOptions from './components/FeedbackOptions/FeedbackOptions';
 import Statistics from './components/Statistics/Statistics';
 import Notification from './components/Notification/Notification';
 
-class App extends Component {
 
-    state = {
-        good: 0,
-        neutral: 0,
-        bad: 0,
+export default function App() {
+    const[Good, setGood] = useState(0);
+    const[Neutral, setNeutral] = useState(0);
+    const [Bad, setBad] = useState(0);
+
+    const counterFeetback = option => {
+        if (option === "Good") {
+            setGood(Good + 1);
+        }
+
+        if (option === "Neutral") {
+            setNeutral(Neutral + 1);
+        }
+
+        if (option === "Bad") {
+            setBad(Bad + 1);
+        }
     };
 
-    counterFeetback = option => {
-        this.setState(prevState => ({
-        [option]: prevState[option] + 1,
-        }));
-    };
-  
-    countTotalFeedback = () => {
-        const totalFeedback = this.state.bad + this.state.good + this.state.neutral;
+    const countTotalFeedback = () => {
+        const totalFeedback = Good + Neutral + Bad;
         return totalFeedback;
     };
 
-    countPositiveFeedbackPercentage = () => {
-        // const percent = this.countTotalFeedback() ? (this.state.good * 100) / this.countTotalFeedback() : 0;
-        const percent = (this.state.good * 100) / this.countTotalFeedback();
+    const countPositiveFeedbackPercentage = () => {
+        const percent = (Good * 100) / countTotalFeedback();
         return Math.round(percent);
-      };
+    };
+    
+    return (
+        <>
+            <Section title="Please laeve feetback">
+                <FeedbackOptions
+                    options={["Good", "Neutral", "Bad"]}
+                    onLeaveFeedback={counterFeetback}
+                />
+            </Section>
 
-    render() { 
-        return (
-            <>
-                <Section title="Please laeve feetback">
-                    <FeedbackOptions
-                        options={Object.keys(this.state)}
-                        onLeaveFeedback={this.counterFeetback}
+            {Good || Neutral || Bad  ? (
+                <Section title="Statistics">
+                    <Statistics
+                        good={Good}
+                        neutral={Neutral}
+                        bad={Bad}
+                        total={countTotalFeedback()}
+                        percent={countPositiveFeedbackPercentage()}
                     />
                 </Section>
-
-                {this.countTotalFeedback() ? (
-                    <Section title="Statistics">
-                        <Statistics
-                            good={this.state.good}
-                            neutral={this.state.neutral}
-                            bad={this.state.bad}
-                            total={this.countTotalFeedback()}
-                            percent={this.countPositiveFeedbackPercentage()}
-                        />
-                    </Section>
-                ) :
-                (<Notification message="There is no feedback" />)}
-            </>
-        );
-    }
+            ) :
+            (<Notification message="There is no feedback" />)}
+        </>
+    );
 }
-    
-export default App;
